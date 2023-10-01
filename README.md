@@ -11,4 +11,5 @@ Return simple string about:
 ```bash
 curl "http://localhost:8080/v1/text/now?location=Moskow"
 ```
+Returns: Сейчас в Москве солнечно. Температура +24. Лекгий ветерочек.
 
