@@ -3,6 +3,11 @@ package ru.mativ.weather.dto;
 public class WeatherDto {
     private LocationDto location;
     private CurrentDto current;
+    private ForecastDto forecast;
+
+    public WeatherDto() {
+        super();
+    }
 
     public LocationDto getLocation() {
         return location;
@@ -20,9 +25,17 @@ public class WeatherDto {
         this.current = current;
     }
 
+    public ForecastDto getForecast() {
+        return forecast;
+    }
+
+    public void setForecast(ForecastDto forecast) {
+        this.forecast = forecast;
+    }
+
     @Override
     public String toString() {
-        return "WeatherDto [location=" + location + ", current=" + current + "]";
+        return "WeatherDto [location=" + location + ", current=" + current + ", forecast=" + forecast + "]";
     }
 
 }

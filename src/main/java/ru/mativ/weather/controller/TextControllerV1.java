@@ -21,9 +21,8 @@ public class TextControllerV1 {
     }
 
     @GetMapping("/day")
-    public String day(String location) {
-        //TODO
-        return null;
+    public String day(String location) throws WeatherServiceException {
+        return textService.today(location);
     }
 
 }

@@ -45,4 +45,11 @@ public class TextService {
         return messages.weatherWind(wind.name());
     }
 
+    public String today(String location) throws WeatherServiceException {
+        WeatherDto cur = weather.forecast(location, 1);
+        LOG.info(cur.toString());
+        //TODO
+        return "TODO :)";
+    }
+
 }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
 
 import ru.mativ.weather.dto.WeatherDto;
 
@@ -23,6 +24,7 @@ public class WeatherService {
     private static final String API_PARAM_AIR_QUALITY = "aqi";
     private static final String API_PARAM_LOCATION = "q";
     private static final String API_PARAM_KEY = "key";
+    private static final String API_PARAM_DAYS = "days";
     private static final String REQUEST_API_ERROR = "Request api error.";
     private static final String RESPONSE_IS_EMPTY = "Response is empty.";
     private static final String URI_GENERATION_ERROR = "Uri generation error.";
@@ -38,10 +40,7 @@ public class WeatherService {
 
     RestTemplate rest = new RestTemplate();
 
-    public WeatherDto current(String location) throws WeatherServiceException {
-        URI uri = getUri(apiUrlCurrent, location);
-        LOG.info(uri.toString());
-
+    private ResponseEntity<WeatherDto> send(URI uri) throws WeatherServiceException {
         ResponseEntity<WeatherDto> resp = rest.getForEntity(uri, WeatherDto.class);
         if (!resp.getStatusCode().is2xxSuccessful()) {
             throw new WeatherServiceException(REQUEST_API_ERROR);
@@ -49,23 +48,38 @@ public class WeatherService {
         if (!resp.hasBody()) {
             throw new WeatherServiceException(RESPONSE_IS_EMPTY);
         }
-        return resp.getBody();
+        return resp;
     }
 
-    private URI getUri(String baseUrl, String location) throws WeatherServiceException {
+    private URI getUri(String baseUrl, String location, Integer days) throws WeatherServiceException {
         try {
-            URI uri = new DefaultUriBuilderFactory(baseUrl)
+            UriBuilder uri = new DefaultUriBuilderFactory(baseUrl)
                     .builder()
                     .queryParam(API_PARAM_KEY, apiSecret)
                     .queryParam(API_PARAM_LOCATION, location)
                     .queryParam(API_PARAM_AIR_QUALITY, API_PARAM_VALUE_NO)
                     .queryParam(API_PARAM_ALERTS, API_PARAM_VALUE_NO)
-                    .queryParam(API_PARAM_LANG, API_PARAM_VALUE_RU)
-                    .build();
-            return uri;
+                    .queryParam(API_PARAM_LANG, API_PARAM_VALUE_RU);
+            if (days != null && days > 0) {
+                uri.queryParam(API_PARAM_DAYS, days);
+            }
+            return uri.build();
         } catch (Exception e) {
             LOG.error(URI_GENERATION_ERROR, e);
             throw new WeatherServiceException(URI_GENERATION_ERROR, e);
         }
     }
+
+    public WeatherDto current(String location) throws WeatherServiceException {
+        URI uri = getUri(apiUrlCurrent, location, null);
+        LOG.info(uri.toString());
+        return send(uri).getBody();
+    }
+
+    public WeatherDto forecast(String location, Integer days) throws WeatherServiceException {
+        URI uri = getUri(apiUrlForecast, location, days);
+        LOG.info(uri.toString());
+        return send(uri).getBody();
+    }
+
 }
